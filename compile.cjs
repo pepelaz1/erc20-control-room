@@ -1,0 +1,3 @@
+const fs=require('node:fs');const path=require('node:path');const solc=require('solc');
+function compile(files){const sources=Object.fromEntries(files.map(f=>[f,{content:fs.readFileSync(path.join(__dirname,f),'utf8')} ]));const output=JSON.parse(solc.compile(JSON.stringify({language:'Solidity',sources,settings:{optimizer:{enabled:true,runs:200},evmVersion:'shanghai',outputSelection:{'*':{'*':['abi','evm.bytecode.object']}}}}),{import:p=>{try{return {contents:fs.readFileSync(require.resolve(p),'utf8')}}catch{return {error:'Import not found: '+p}}}}));const errors=(output.errors||[]).filter(e=>e.severity==='error');if(errors.length)throw Error(errors.map(e=>e.formattedMessage).join('\n'));return output.contracts}
+module.exports={compile};
